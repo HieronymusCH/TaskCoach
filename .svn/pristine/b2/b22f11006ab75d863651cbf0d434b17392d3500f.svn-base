@@ -1,0 +1,69 @@
+'''
+Task Coach - Your friendly task manager
+Copyright (C) 2004-2009 Frank Niessink <frank@niessink.com>
+
+Task Coach is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Task Coach is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+'''
+
+import threading, wx, urllib2
+import xml.etree.ElementTree as ElementTree
+import data
+   
+   
+class VersionChecker(threading.Thread):
+    def __init__(self, settings):
+        self.settings = settings
+        super(VersionChecker, self).__init__()
+        
+    def _set_daemon(self):
+        return True # Don't block application exit
+        
+    def run(self):
+        latestVersionString = self.getLatestVersion()
+        latestVersion = self.tupleVersion(latestVersionString)
+        lastVersionNotified = self.tupleVersion(self.settings.get('version', 'notified'))
+        currentVersion = self.tupleVersion(data.version)
+        if latestVersion > lastVersionNotified and latestVersion > currentVersion:
+            self.settings.set('version', 'notified', latestVersionString)
+            self.notifyUser(latestVersionString)
+            
+    def getLatestVersion(self):
+        try:
+            pad = self.parsePadFile(self.retrievePadFile())
+            return pad.findtext('Program_Info/Program_Version')
+        except:
+            return self.settings.get('version', 'notified')
+
+    def parsePadFile(self, padFile):
+        return ElementTree.parse(padFile)
+
+    def retrievePadFile(self):
+        return urllib2.urlopen(data.pad)
+
+    def notifyUser(self, latestVersion):
+        # Must use CallAfter because this is a non-GUI thread
+        wx.CallAfter(self.showDialog, latestVersion)
+        
+    def showDialog(self, latestVersion):
+        # Import version here to prevent circular import:
+        from taskcoachlib.gui.dialog import version 
+        dialog = version.VersionDialog(wx.GetApp().GetTopWindow(), 
+                                       version=latestVersion)
+        dialog.ShowModal()
+        self.settings.set('version', 'notify', str(dialog.check.GetValue())) 
+        dialog.Destroy()
+
+    @staticmethod
+    def tupleVersion(versionString):
+        return tuple(int(i) for i in versionString.split('.'))

@@ -1,0 +1,6 @@
+include *.txt
+recursive-include tests *.py
+include TODO.tsk
+include setup.py
+include make.py
+prune dist.in

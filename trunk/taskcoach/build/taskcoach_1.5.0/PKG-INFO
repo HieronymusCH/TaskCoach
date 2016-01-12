@@ -1,0 +1,37 @@
+Metadata-Version: 1.1
+Name: TaskCoach
+Version: 1.5.0
+Summary: Your friendly task manager
+Home-page: http://taskcoach.org/
+Author: Frank Niessink, Jerome Laheurte, and Aaron Wolf
+Author-email: developers@taskcoach.org
+License: GNU General Public License version 3 or any later version
+Download-URL: http://taskcoach.org/download.html
+Description: Task Coach is a free open source todo manager. It grew out of frustration about other programs not handling composite tasks well. In addition to flexible composite tasks, Task Coach has grown to include prerequisites, prioritizing, effort tracking, category tags, budgets, notes, and many other features. However, users are not forced to use all these features; Task Coach can be as simple or complex as you need it to be. Task Coach is available for Windows, Mac OS X, and GNU/Linux; and there is a companion iOS app.
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: License :: OSI Approved :: GNU General Public License (GPL)
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Topic :: Office/Business
+Classifier: Natural Language :: Czech
+Classifier: Natural Language :: Dutch
+Classifier: Natural Language :: English (AU)
+Classifier: Natural Language :: English (CA)
+Classifier: Natural Language :: English (GB)
+Classifier: Natural Language :: English (US)
+Classifier: Natural Language :: Finnish
+Classifier: Natural Language :: French
+Classifier: Natural Language :: German
+Classifier: Natural Language :: Italian
+Classifier: Natural Language :: Polish
+Classifier: Natural Language :: Portuguese
+Classifier: Natural Language :: Portuguese (Brazilian)
+Classifier: Natural Language :: Romanian
+Classifier: Natural Language :: Russian
+Classifier: Natural Language :: Slovak
+Classifier: Natural Language :: Spanish
+Classifier: Natural Language :: Turkish

@@ -1,0 +1,23 @@
+Source: taskcoach
+Section: Applications
+Priority: optional
+Maintainer: Frank Niessink, Jerome Laheurte, and Aaron Wolf <developers@taskcoach.org>
+Build-Depends: cdbs (>= 0.4.43), debhelper (>= 5), python, dpatch
+Build-Depends-Indep: python-support (>= 0.5.3)
+Standards-Version: 3.7.3
+Homepage: http://taskcoach.org/
+
+Package: taskcoach
+Architecture: all
+Depends: python (>= 2.6), python-wxgtk2.8 (>= 2.8.9.2), python-wxversion, python-twisted (>= 10.0), libxss1, ttf-dejavu
+Recommends: python-notify, libgnome2-0, libavahi-compat-libdnssd1, x11-utils
+Suggests: python-kde4
+Description: Your friendly task manager.
+ Task Coach is a free open source todo manager. It grew out of frustration
+ about other programs not handling composite tasks well. In addition to
+ flexible composite tasks, Task Coach has grown to include prerequisites,
+ prioritizing, effort tracking, category tags, budgets, notes, and many
+ other features. However, users are not forced to use all these features;
+ Task Coach can be as simple or complex as you need it to be. Task Coach is
+ available for Windows, Mac OS X, and GNU/Linux; and there is a companion
+ iOS app.

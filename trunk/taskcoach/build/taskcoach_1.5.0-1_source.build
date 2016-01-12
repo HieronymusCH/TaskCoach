@@ -1,0 +1,17 @@
+ dpkg-buildpackage -rfakeroot -d -us -uc -S
+dpkg-buildpackage: warning: using a gain-root-command while being root
+dpkg-buildpackage: warning:     debian/changelog(l5): found trailer where expected start of change data
+LINE:  -- Frank Niessink, Jerome Laheurte, and Aaron Wolf <developers@taskcoach.org>  Sun, 10 Jan 2016 13:22:24 +0000
+dpkg-buildpackage: source package taskcoach
+dpkg-buildpackage: source version 1.5.0-1
+dpkg-buildpackage: source distribution UNRELEASED
+dpkg-buildpackage: source changed by Frank Niessink, Jerome Laheurte, and Aaron Wolf <developers@taskcoach.org>
+ dpkg-source --before-build taskcoach_1.5.0
+dpkg-source: warning: taskcoach_1.5.0/debian/changelog(l5): found trailer where expected start of change data
+LINE:  -- Frank Niessink, Jerome Laheurte, and Aaron Wolf <developers@taskcoach.org>  Sun, 10 Jan 2016 13:22:24 +0000
+ fakeroot debian/rules clean
+debian/rules:5: /usr/share/cdbs/1/rules/simple-patchsys.mk: No such file or directory
+debian/rules:6: /usr/share/cdbs/1/rules/debhelper.mk: No such file or directory
+debian/rules:7: /usr/share/cdbs/1/class/python-distutils.mk: No such file or directory
+make: *** No rule to make target '/usr/share/cdbs/1/class/python-distutils.mk'.  Stop.
+dpkg-buildpackage: error: fakeroot debian/rules clean gave error exit status 2

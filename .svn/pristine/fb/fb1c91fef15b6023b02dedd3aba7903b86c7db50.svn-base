@@ -1,0 +1,206 @@
+# -*- python -*-
+
+c = BuildmasterConfig = {}
+
+BASEURL = 'http://taskcoach.svn.sourceforge.net/svnroot/taskcoach/'
+
+PASSWORD = file('.passwd', 'rb').readlines()[0].strip()
+
+####### BUILDSLAVES
+
+from buildbot.buildslave import BuildSlave
+
+c['slaves'] = [BuildSlave("WinXPSP2", PASSWORD, max_builds=1),
+               BuildSlave("Ubuntu", PASSWORD, max_builds=1),
+               BuildSlave("MacOS", PASSWORD, max_builds=1)]
+
+c['slavePortnum'] = 9989
+
+####### CHANGESOURCES
+
+# SourceForge does not (yet) provide a buildbot notification
+# post-commit hook. There is a feature request for this though
+# (https://sourceforge.net/tracker/?func=detail&aid=1633682&group_id=1&atid=350001)
+
+#from buildbot.changes.pb import PBChangeSource
+#c['change_source'] = PBChangeSource()
+
+from buildbot.changes.svnpoller import SVNPoller, split_file_branches
+c['change_source'] = SVNPoller(BASEURL,
+                               pollinterval=10*60,
+                               split_file=split_file_branches)
+
+####### SCHEDULERS
+
+from buildbot.scheduler import Scheduler
+
+c['schedulers'] = []
+c['schedulers'].append(Scheduler(name="TrunkWin32", branch=None,
+                                 treeStableTimer=0,
+                                 builderNames=["win32-trunk"]))
+c['schedulers'].append(Scheduler(name="LastReleaseWin32", branch='branches/Release0_71_Branch',
+                                 treeStableTimer=0,
+                                 builderNames=["win32-rel-0.71"]))
+c['schedulers'].append(Scheduler(name="TrunkLinux", branch=None,
+                                 treeStableTimer=0,
+                                 builderNames=["linux-trunk"]))
+c['schedulers'].append(Scheduler(name="LastReleaseLinux", branch='branches/Release0_71_Branch',
+                                 treeStableTimer=0,
+                                 builderNames=["linux-rel-0.71"]))
+c['schedulers'].append(Scheduler(name="TrunkMacOS", branch=None,
+                                 treeStableTimer=0,
+                                 builderNames=["macos-trunk"]))
+c['schedulers'].append(Scheduler(name="LastReleaseMacOS", branch='branches/Release0_71_Branch',
+                                 treeStableTimer=0,
+                                 builderNames=["macos-rel-0.71"]))
+
+
+####### BUILDERS
+
+import os, sys
+sys.path.insert(0, os.getcwd())
+import tcbuild
+
+from buildbot.process import factory
+from buildbot.steps.source import SVN
+from buildbot.steps.shell import Compile
+
+c['builders'] = []
+
+f = factory.BuildFactory()
+
+f.addStep(SVN(baseURL=BASEURL))
+f.addStep(tcbuild.Cleanup())
+f.addStep(tcbuild.UnitTests())
+f.addStep(tcbuild.IntegrationTests())
+f.addStep(tcbuild.LanguageTests())
+f.addStep(tcbuild.BuildEXE())
+f.addStep(tcbuild.UploadEXE())
+f.addStep(tcbuild.DistributionTests())
+
+b = {'name': "win32-rel-0.71",
+      'slavename': "WinXPSP2",
+      'builddir': "rel-win32",
+      'factory': f,
+      }
+
+c['builders'].append(b)
+
+f = factory.BuildFactory()
+
+f.addStep(SVN(baseURL=BASEURL))
+f.addStep(tcbuild.Cleanup())
+f.addStep(tcbuild.UnitTests(haltOnFailure=False))
+f.addStep(tcbuild.IntegrationTests())
+f.addStep(tcbuild.LanguageTests())
+f.addStep(tcbuild.BuildSource())
+f.addStep(tcbuild.UploadSourceTar())
+f.addStep(tcbuild.UploadSourceZip())
+f.addStep(tcbuild.BuildDEB())
+f.addStep(tcbuild.UploadDEB())
+f.addStep(tcbuild.DistributionTests())
+
+b = {'name': "linux-rel-0.71",
+     'slavename': "Ubuntu",
+     'builddir': "rel-linux",
+     'factory': f,
+     }
+
+c['builders'].append(b)
+
+f = factory.BuildFactory()
+
+f.addStep(SVN(baseURL=BASEURL))
+f.addStep(tcbuild.Cleanup())
+f.addStep(tcbuild.UnitTests())
+f.addStep(tcbuild.IntegrationTests())
+f.addStep(tcbuild.LanguageTests())
+f.addStep(tcbuild.BuildDMG())
+f.addStep(tcbuild.UploadDMG())
+f.addStep(tcbuild.DistributionTests())
+
+b = {'name': "macos-rel-0.71",
+     'slavename': "MacOS",
+     'builddir': "rel-macos",
+     'factory': f,
+     }
+
+c['builders'].append(b)
+
+f = factory.BuildFactory()
+
+f.addStep(SVN(svnurl=BASEURL + 'trunk'))
+f.addStep(tcbuild.Cleanup(workdir='build/taskcoach'))
+f.addStep(tcbuild.UnitTests(workdir='build/taskcoach'))
+f.addStep(tcbuild.IntegrationTests(workdir='build/taskcoach'))
+f.addStep(tcbuild.LanguageTests(workdir='build/taskcoach'))
+f.addStep(tcbuild.BuildEXE(workdir='build/taskcoach'))
+f.addStep(tcbuild.UploadEXE(workdir='build/taskcoach'))
+
+b = {'name': "win32-trunk",
+     'slavename': "WinXPSP2",
+     'builddir': "trunk-win32",
+     'factory': f,
+     }
+
+c['builders'].append(b)
+
+f = factory.BuildFactory()
+
+f.addStep(SVN(svnurl=BASEURL + 'trunk'))
+f.addStep(tcbuild.Cleanup(workdir='build/taskcoach'))
+f.addStep(tcbuild.UnitTests(workdir='build/taskcoach', haltOnFailure=False))
+f.addStep(tcbuild.IntegrationTests(workdir='build/taskcoach'))
+f.addStep(tcbuild.LanguageTests(workdir='build/taskcoach'))
+f.addStep(tcbuild.BuildSource(workdir='build/taskcoach'))
+f.addStep(tcbuild.UploadSourceTar(workdir='build/taskcoach'))
+f.addStep(tcbuild.UploadSourceZip(workdir='build/taskcoach'))
+f.addStep(tcbuild.BuildDEB(workdir='build/taskcoach'))
+f.addStep(tcbuild.UploadDEB(workdir='build/taskcoach'))
+
+b = {'name': "linux-trunk",
+     'slavename': "Ubuntu",
+     'builddir': "trunk-linux",
+     'factory': f,
+     }
+
+c['builders'].append(b)
+
+f = factory.BuildFactory()
+
+f.addStep(SVN(svnurl=BASEURL + 'trunk'))
+f.addStep(tcbuild.Cleanup(workdir='build/taskcoach'))
+f.addStep(tcbuild.UnitTests(workdir='build/taskcoach'))
+f.addStep(tcbuild.IntegrationTests(workdir='build/taskcoach'))
+f.addStep(tcbuild.LanguageTests(workdir='build/taskcoach'))
+f.addStep(tcbuild.BuildDMG(workdir='build/taskcoach'))
+f.addStep(tcbuild.UploadDMG(workdir='build/taskcoach'))
+
+b = {'name': "macos-trunk",
+     'slavename': "MacOS",
+     'builddir': "trunk-macos",
+     'factory': f,
+     }
+
+c['builders'].append(b)
+
+####### STATUS TARGETS
+
+c['status'] = []
+
+from buildbot.status import html
+c['status'].append(html.WebStatus(http_port=8010))
+
+from buildbot.status import mail
+c['status'].append(mail.MailNotifier(fromaddr="fraca7@free.fr",
+                                     sendToInterestedUsers=True,
+                                     mode='failing',
+                                     relayhost='smtp.free.fr',
+                                     lookup=tcbuild.TaskCoachEmailLookup()))
+
+####### PROJECT IDENTITY
+
+c['projectName'] = "TaskCoach"
+c['projectURL'] = "http://www.taskcoach.org/"
+
+c['buildbotURL'] = "http://www.fraca7.net:8010/"
